@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load CSV dataset
-df = pd.read_csv(".\\cleanned_data\\customer_support_tickets.csv")
+df = pd.read_csv(".tickets_clean.csv")
 
 print("=" * 50)
 print("Dataset Shape")

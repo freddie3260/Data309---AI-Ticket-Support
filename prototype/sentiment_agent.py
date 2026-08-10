@@ -1,7 +1,7 @@
 import pandas as pd
 from transformers import pipeline
 
-df = pd.read_csv(".\\cleanned_data\\customer_support_tickets.csv")
+df = pd.read_csv("./customer_support_tickets.csv")
 
 sentiment = pipeline("sentiment-analysis")
 

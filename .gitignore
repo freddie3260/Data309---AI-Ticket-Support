@@ -1,4 +1,12 @@
+<<<<<<< HEAD
+venv/
+__pycache__/
+*.pyc
+.env
+.vscode/
+=======
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+>>>>>>> 938c39d42c1547d594c05a0e3cb02b54db40bda9

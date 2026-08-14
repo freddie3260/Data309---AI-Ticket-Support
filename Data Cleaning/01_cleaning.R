@@ -1,5 +1,5 @@
 # library
-source("Data Cleaning/library.R")
+source("Data Cleaning/00_library.R")
 
 # Load data into R
 tickets <- read.csv("Data Cleaning/dataset-tickets-multi-lang3-4k.csv")
@@ -8,16 +8,8 @@ tickets <- read.csv("Data Cleaning/dataset-tickets-multi-lang3-4k.csv")
 tickets_1 <- tickets %>%
   select(-subject,
          -queue,
-         -business_type, 
-         -tag_1,
-         -tag_2,
-         -tag_3,
-         -tag_4,
-         -tag_5,
-         -tag_6, 
-         -tag_7, 
-         -tag_8, 
-         -tag_9)
+         -business_type
+         )
 
 # correct some value to factor for easy analysis
 tickets_1$type <- as.factor(tickets_1$type)

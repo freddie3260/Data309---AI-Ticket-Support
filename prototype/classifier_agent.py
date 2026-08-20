@@ -1,29 +1,49 @@
 from transformers import pipeline
 
-classifier = pipeline(
-    "zero-shot-classification",
-    model="facebook/bart-large-mnli"
-)
 
-ticket = """
-I cannot log into my account and I am very frustrated.
-"""
+def generate_category(ticket):
+    """
+    generate category base on the ticket type
+    """
+    labels = [
+        "Technical Issue",
+        "Billing and Payment",
+        "Return and Exchange",
+        "Account",
+        "Sales and Pre-sales", 
+        "IT and Technical Support", 
+        "General",
+        "Shipping and Delivery"
+    ]
 
-labels = [
-     "Technical Issue",
-    "Billing and Payment",
-    "Return and Exchange",
-    "Account",
-    "Sales and Pre-sales", "IT and Technical Support", "General"
-]
+    # load Model
+    classifier = pipeline(
+        "zero-shot-classification",
+        model="facebook/bart-large-mnli"
+    )
 
-result = classifier(
-    ticket,
-    candidate_labels=labels
-)
+    # Generate category base on ticket info
+    result = classifier(
+        ticket,
+        candidate_labels = labels
+    )
 
-print("Predicted Category:")
-print(result["labels"][0])
+    return result
 
-print("Confidence:")
-print(result["scores"][0])
+
+def main():
+    # Test case
+    ticket = """
+    I cannot log into my account and I am very frustrated.
+    """
+
+    test = generate_category(ticket)
+
+    print("Predicted Category:")
+    print(test["labels"][0])
+
+    print("Confidence:")
+    print(test["scores"][0])
+
+if __name__ == "__main__":
+    main()

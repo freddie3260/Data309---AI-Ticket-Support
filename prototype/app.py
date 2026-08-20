@@ -1,30 +1,9 @@
 import streamlit as st
 
-from transformers import pipeline
-
 from response_agent import generate_response
-
-# ------------------------------------
-# Load models (once)
-# ------------------------------------
-
-@st.cache_resource
-def load_models():
-
-    classifier = pipeline(
-        "zero-shot-classification",
-        model="facebook/bart-large-mnli"
-    )
-
-    sentiment = pipeline(
-        "sentiment-analysis"
-    )
-
-    return classifier, sentiment
-
-
-classifier, sentiment_model = load_models()
-
+from classifier_agent import generate_category
+from sentiment_agent import generate_sentiment
+from escalation_agent import check_escalation
 
 # ------------------------------------
 # Page Title
@@ -53,52 +32,28 @@ ticket = st.text_area(
 
 if st.button("Analyse Ticket"):
 
-    labels = [
-        "Technical Issue",
-        "Billing and Payment",
-        "Return and Exchange",
-        "Account",
-        "Sales and Pre-sales",
-        "IT and Technical Support",
-        "General"
-    ]
+    # AI agent for check ticket type
+    category = generate_category(ticket)     # Classification
+    sentiment = generate_sentiment(ticket)   # Sentiment
+    escalation = check_escalation(sentiment) # Escalation
 
-    # Classification
-    classification = classifier(
-        ticket,
-        candidate_labels=labels
-    )
-
-    category = classification["labels"][0]
-
-    # Sentiment
-    sentiment_result = sentiment_model(
-        ticket
-    )
-
-    sentiment_label = sentiment_result[0]["label"]
-
-    # Escalation
-    if sentiment_label == "NEGATIVE":
-        escalation = "YES"
-    else:
-        escalation = "NO"
+    ticket_type = category["labels"][0]
+    sentiment_type = sentiment[0]["label"]
 
     # Response Generator (Ollama)
     response_text = generate_response(
         ticket,
-        category,
-        sentiment_label,
+        ticket_type,
+        sentiment_type,
         escalation
     )
 
     # Display Results
-
     st.subheader("Category")
-    st.success(category)
+    st.success(ticket_type)
 
     st.subheader("Sentiment")
-    st.info(sentiment_label)
+    st.info(sentiment_type)
 
     st.subheader("Escalation Required")
     st.warning(escalation)
@@ -106,10 +61,10 @@ if st.button("Analyse Ticket"):
     st.subheader("Generated Response")
     st.write(response_text)
 
-    st.metric("Category", category)
+    st.metric("Category", ticket_type)
 
-    st.metric("Sentiment", sentiment_label)
+    st.metric("Sentiment", sentiment_type)
 
     st.progress(
-    classification["scores"][0]
-)
+    category["scores"][0]
+    )

@@ -1,6 +1,5 @@
 import requests
 
-
 def generate_response(
         ticket,
         category,

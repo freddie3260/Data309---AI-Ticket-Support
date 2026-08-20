@@ -1,4 +1,3 @@
-
 def check_escalation(sentiment):
     """
     check ticket need to be escalate or not

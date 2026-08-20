@@ -1,12 +1,18 @@
-import pandas as pd
+import streamlit as st
 from transformers import pipeline
+
+@st.cache_resource
+def load_sentiment_model():
+    """Load Model"""
+    return pipeline("sentiment-analysis")
+
 
 def generate_sentiment(ticket):
     """
     Generate sentiment result base on ticket type
     """
     # load model for sentiment analysis
-    model = pipeline("sentiment-analysis")
+    model = load_sentiment_model()
 
     # insert ticket into model to get sentiment result
     result = model(ticket)
@@ -14,12 +20,9 @@ def generate_sentiment(ticket):
     return result
 
 
-
-
-
-
 def main():
     # Test case
+    import pandas as pd
     df = pd.read_csv("Data Cleaning/tickets_clean.csv")
 
     for i in range(5):

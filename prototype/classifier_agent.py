@@ -1,10 +1,20 @@
+import streamlit as st
 from transformers import pipeline
+
+@st.cache_resource
+def load_classifier():
+    """Load Model"""
+    return pipeline(
+        "zero-shot-classification",
+        model="facebook/bart-large-mnli"
+    )
 
 
 def generate_category(ticket):
     """
     generate category base on the ticket type
     """
+    classifier = load_classifier()
     labels = [
         "Technical Issue",
         "Billing and Payment",
@@ -15,12 +25,6 @@ def generate_category(ticket):
         "General",
         "Shipping and Delivery"
     ]
-
-    # load Model
-    classifier = pipeline(
-        "zero-shot-classification",
-        model="facebook/bart-large-mnli"
-    )
 
     # Generate category base on ticket info
     result = classifier(

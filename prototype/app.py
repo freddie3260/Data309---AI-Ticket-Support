@@ -38,6 +38,7 @@ if st.button("Analyse Ticket"):
     escalation = check_escalation(sentiment) # Escalation
 
     ticket_type = category["labels"][0]
+    category_score = category["score"][0]
     sentiment_type = sentiment[0]["label"]
 
     # Response Generator (Ollama)
@@ -50,21 +51,19 @@ if st.button("Analyse Ticket"):
 
     # Display Results
     st.subheader("Category")
-    st.success(ticket_type)
+    st.success(ticket_type) # Category
 
     st.subheader("Sentiment")
-    st.info(sentiment_type)
+    st.info(sentiment_type) # Sentiment
 
     st.subheader("Escalation Required")
-    st.warning(escalation)
+    st.warning(escalation) # Escalation
 
     st.subheader("Generated Response")
-    st.write(response_text)
+    st.write(response_text) # AI Response
 
-    st.metric("Category", ticket_type)
+    st.metric("Category", ticket_type) 
 
     st.metric("Sentiment", sentiment_type)
 
-    st.progress(
-    category["scores"][0]
-    )
+    st.progress(category_score) # Confidence Score for Category

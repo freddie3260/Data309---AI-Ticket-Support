@@ -34,6 +34,23 @@ def generate_category(ticket):
 
     return result
 
+def billing_payment_check(ticket):
+    """
+    check problem is billing problem or payment problem
+    """
+    classifier = load_classifier()
+    labels = [
+        "Billing",
+        "Payment"
+    ]
+
+    result = classifier(
+        ticket,
+        candidate_label = labels
+    )
+
+    return result
+
 
 def main():
     # Test case

@@ -35,11 +35,12 @@ if st.button("Analyse Ticket"):
     # AI agent for check ticket type
     category = generate_category(ticket)     # Classification
     sentiment = generate_sentiment(ticket)   # Sentiment
-    escalation = check_escalation(sentiment) # Escalation
-
+    
     ticket_type = category["labels"][0]
     category_score = category["score"][0]
     sentiment_type = sentiment[0]["label"]
+
+    escalation = check_escalation(ticket, ticket_type, sentiment) # Escalation
 
     # Response Generator (Ollama)
     response_text = generate_response(

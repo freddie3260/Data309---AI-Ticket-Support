@@ -37,10 +37,10 @@ if st.button("Analyse Ticket"):
     sentiment = generate_sentiment(ticket)   # Sentiment
     
     ticket_type = category["labels"][0]
-    category_score = category["score"][0]
+    category_score = category["scores"][0]
     sentiment_type = sentiment[0]["label"]
 
-    escalation = check_escalation(ticket, ticket_type, sentiment) # Escalation
+    escalation, esc_num = check_escalation(ticket, ticket_type, sentiment_type) # Escalation
 
     # Response Generator (Ollama)
     response_text = generate_response(
@@ -63,8 +63,46 @@ if st.button("Analyse Ticket"):
     st.subheader("Generated Response")
     st.write(response_text) # AI Response
 
+    st.subheader("esc_check")
+    st.write(esc_num)
+
     st.metric("Category", ticket_type) 
 
     st.metric("Sentiment", sentiment_type)
 
     st.progress(category_score) # Confidence Score for Category
+
+
+
+
+def main():
+    ticket = """
+    I cannot log into my account and I am very frustrated.
+    """
+    category = generate_category(ticket)     # Classification
+    sentiment = generate_sentiment(ticket)   # Sentiment
+
+    ticket_type = category["labels"][0]
+    category_score = category["scores"][0]
+    sentiment_type = sentiment[0]["label"]
+
+    escalation, num = check_escalation(ticket, ticket_type, sentiment_type) # Escalation
+
+    # Response Generator (Ollama)
+    response_text = generate_response(
+        ticket,
+        ticket_type,
+        sentiment_type,
+        escalation
+    )
+
+    # print(response_text)
+    print(num)
+
+
+if __name__ == "__main__":
+    import sys
+
+    if "streamlit" not in sys.modules:
+        main()
+

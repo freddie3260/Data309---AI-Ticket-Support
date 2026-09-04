@@ -105,7 +105,7 @@ def main():
     sentiment_label = sentiment_result[0]["label"]
 
     # Check escalation is needed or not
-    escalation = check_escalation(sentiment_label)
+    escalation = check_escalation(ticket, ticket_category, sentiment_label)
 
     # show ticket type and escalation state
     # print(ticket_category)

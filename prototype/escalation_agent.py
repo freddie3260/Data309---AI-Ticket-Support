@@ -1,28 +1,30 @@
 from classifier_agent import billing_payment_check
 
+ESCALATION_CHECK = 1
 
 def check_escalation(body, category, sentiment):
-    ans = []
+    global ESCALATION_CHECK
+    ans = False
 
     # All escalation step
-    ans.append(escalation_sentiment(sentiment)) # Sentiment check
+    if escalation_sentiment(sentiment) == False: # Sentiment check
+        ans = True
     if category in ["Billing and Payment"]: # Special step needed for billing and payment category
         category = billing_payment_check(body)
 
     if category in ["Sales and Pre-sales", "Payment"]: # if in this category than we issue ticket to human
-        ans.append(True)
-    elif category in ["Technical Issue", "Return and Exchange", "Account", "Billing", "IT and Technical Support", "General", "Shipping and Delivery"]: # to AI
-        ans.append(False)
+        ans = True
+    # elif category in ["Technical Issue", "Return and Exchange", "Account", "Billing", "IT and Technical Support", "General", "Shipping and Delivery"]: # to AI
         
+    # if user ask 3 times or escalation is needed then escalate
+    if ESCALATION_CHECK >= 3 or ans:
+        return "YES", ESCALATION_CHECK
+
+    ESCALATION_CHECK += 1
+
+    return "NO", ESCALATION_CHECK
+
     
-
-    # if all step is good than return YES
-    if all(ans):
-        return "YES" # don't escalate
-    else:
-        return "NO" # escalate
-
-
 
 
 def escalation_sentiment(sentiment):
@@ -39,7 +41,7 @@ def escalation_sentiment(sentiment):
 def main():
     # Test & Not agent irrelevant
     print(
-        check_escalation("NEGATIVE")
+        escalation_sentiment("NEGATIVE")
     )
 
 if __name__ == "__main__":

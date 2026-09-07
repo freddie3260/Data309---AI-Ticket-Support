@@ -1,14 +1,21 @@
-from classifier_agent import billing_payment_check
+from classifier_agent import billing_payment_check, check_status
 
 ESCALATION_CHECK = 1
-
+NEGATIVE_SENTIMENT = 0
 def check_escalation(body, category, sentiment):
     global ESCALATION_CHECK
+    global NEGATIVE_SENTIMENT
     ans = False
 
     # All escalation step
-    if escalation_sentiment(sentiment) == False: # Sentiment check
-        ans = True
+    if escalation_solve(check_status(body)) == False:
+        return "NO", ESCALATION_CHECK
+    
+    if ESCALATION_CHECK != 1 and escalation_sentiment(sentiment) == False: # Sentiment check (don't check for the first time)
+        if NEGATIVE_SENTIMENT >= 2: # if the sentiment is negative two time or more then escalate
+            ans = True
+        else:
+            NEGATIVE_SENTIMENT += 1
     if category in ["Billing and Payment"]: # Special step needed for billing and payment category
         category = billing_payment_check(body)
 
@@ -25,8 +32,6 @@ def check_escalation(body, category, sentiment):
     return "NO", ESCALATION_CHECK
 
     
-
-
 def escalation_sentiment(sentiment):
     """
     check ticket need to be escalate or not
@@ -36,6 +41,15 @@ def escalation_sentiment(sentiment):
         return True
     else:
         return False
+
+
+def escalation_solve(status):
+    """
+    check ticket status
+    """
+    if status == "Solved":
+        return False # if ticket solve then don't escalate
+    return True
 
 
 def main():

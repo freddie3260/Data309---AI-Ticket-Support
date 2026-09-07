@@ -51,6 +51,21 @@ def billing_payment_check(ticket):
 
     return result
 
+def check_status(ticket):
+    labels = [
+        "Solved",
+        "Not Solved"
+    ]
+
+    classifier = load_classifier()
+
+    result = classifier(
+        ticket,
+        candidate_labels=labels
+    )
+
+    return result
+
 
 def main():
     # Test case

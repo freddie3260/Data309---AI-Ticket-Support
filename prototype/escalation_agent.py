@@ -1,14 +1,14 @@
-from classifier_agent import billing_payment_check, check_status
+from classifier_agent import billing_payment_check
 
-ESCALATION_CHECK = 1
+ESCALATION_CHECK = 0
 NEGATIVE_SENTIMENT = 0
-def check_escalation(body, category, sentiment):
+def check_escalation(body, category, sentiment, status):
     global ESCALATION_CHECK
     global NEGATIVE_SENTIMENT
     ans = False
 
     # All escalation step
-    if escalation_solve(check_status(body)) == False:
+    if escalation_solve(status) == False:
         return "NO", ESCALATION_CHECK
     
     if ESCALATION_CHECK != 1 and escalation_sentiment(sentiment) == False: # Sentiment check (don't check for the first time)
@@ -50,6 +50,14 @@ def escalation_solve(status):
     if status == "Solved":
         return False # if ticket solve then don't escalate
     return True
+
+def reset_escalation():
+    global ESCALATION_CHECK
+    global NEGATIVE_SENTIMENT
+
+    ESCALATION_CHECK = 0
+    NEGATIVE_SENTIMENT = 0
+
 
 
 def main():

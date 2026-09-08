@@ -1,61 +1,96 @@
 import requests
 
 def generate_response(
-        ticket,
-        category,
-        sentiment,
-        escalation):
-
+    ticket,
+    category,
+    sentiment,
+    escalation,
+    status):
+    # prompt for general response
     prompt = f"""
-    You are an experienced customer support specialist.
+        You are an experienced customer support specialist.
 
-    Customer Ticket:
-    {ticket}
+        Customer Ticket:
+        {ticket}
 
-    Ticket Category:
-    {category}
+        Ticket Category:
+        {category}
 
-    Customer Sentiment:
-    {sentiment}
+        Customer Sentiment:
+        {sentiment}
 
-    Escalation Required:
-    {escalation}
+        Escalation Required:
+        {escalation}
 
-    Response Requirements:
+        Response Requirements:
 
-    1. Acknowledge the customer's issue.
-    2. Show empathy if sentiment is NEGATIVE.
-    3. Provide category-specific guidance.
-    4. Explain the next steps.
-    5. Keep the response professional.
-    6. Limit the response to 150 words.
+        1. Acknowledge the customer's issue.
+        2. Show empathy if sentiment is NEGATIVE.
+        3. Provide category-specific guidance.
+        4. Explain the next steps.
+        5. Keep the response professional.
+        6. Limit the response to 150 words.
 
-    Category Guidance:
+        Category Guidance:
 
-    Technical Issue:
-    Provide troubleshooting guidance and explain expected next steps.
+        Technical Issue:
+        Provide troubleshooting guidance and explain expected next steps.
 
-    Billing and Payment:
-    Explain payment verification and billing review procedures.
+        Billing and Payment:
+        Explain payment verification and billing review procedures.
 
-    Return and Exchange:
-    Explain return and exchange procedures.
+        Return and Exchange:
+        Explain return and exchange procedures.
 
-    Account:
-    Provide account recovery, verification, password reset,
-    or account access guidance.
+        Account:
+        Provide account recovery, verification, password reset,
+        or account access guidance.
 
-    Sales and Pre-sales:
-    Provide product information and purchasing advice.
+        Sales and Pre-sales:
+        Provide product information and purchasing advice.
 
-    IT and Technical Support:
-    Provide technical support guidance and troubleshooting advice.
+        IT and Technical Support:
+        Provide technical support guidance and troubleshooting advice.
 
-    General:
-    Provide general customer service assistance.
+        General:
+        Provide general customer service assistance.
 
-    Generate a professional customer support response.
-    """
+        Generate a professional customer support response.
+        """
+        # prompt when the ticket is solved
+    if status == "Solved":
+        prompt = f"""
+            You are a professional customer support specialist.
+
+            The customer's issue has been successfully resolved.
+
+            Customer Ticket:
+            {ticket}
+
+            Ticket Category:
+            {category}
+
+            Customer Sentiment:
+            {sentiment}
+
+            Your task is to write a final response confirming that
+            the customer's issue has been resolved.
+
+            Response Requirements:
+
+            1. Acknowledge the customer's original issue.
+            2. Clearly confirm that the issue has been resolved.
+            3. Briefly explain the resolution if the information is available.
+            4. Be polite, professional, and reassuring.
+            5. If the customer was frustrated or negative, show empathy.
+            6. Thank the customer for their patience.
+            7. Tell the customer to contact support again if the issue returns.
+            8. Do not invent actions or information that are not provided.
+            9. Do not mention AI, language models, prompts, or internal processes.
+            10. Keep the response under 100 words.
+
+            Generate the final customer support response.
+            """
 
     try:
 
@@ -65,9 +100,9 @@ def generate_response(
                 "model": "phi4-mini",   # Change if you're using another model
                 "prompt": prompt,
                 "stream": False
-            },
+                },
             timeout=120
-        )
+            )
 
         data = response.json()
 

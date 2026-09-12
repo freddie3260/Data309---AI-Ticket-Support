@@ -1,0 +1,157 @@
+---
+title: "Data"
+author: "Freddie Leung"
+date: "2026-09-12"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+source("00_library.R")
+# read csv file
+data <- read.csv(here("Data Cleaning", "dataset-tickets-multi-lang3-4k.csv"))
+```
+
+# 2 Data
+
+## 2.1 Descriptive statistics
+```{r 2.1 Descriptive statistics}
+# show database detail
+skim(data)
+
+# categorical variable
+categorical_vars <- c(
+  "type",
+  "queue",
+  "priority",
+  "language",
+  paste0("tag_", 1:9)
+)
+
+# Make a summary with all categorical variable
+data %>%
+  select(all_of(categorical_vars)) %>%
+  summary()
+
+# check the amount of word in ticket and ticket solution
+data <- data %>%
+  mutate(
+    body_length = nchar(body),
+    answer_length = nchar(answer)
+  )
+# the body and answer length detail
+summary(
+  data %>%
+    select(body_length, answer_length)
+)
+# Graph to check customer email length
+ggplot(data, aes(x = body_length)) +
+  geom_histogram(bins = 50) +
+  labs(
+    title = "Distribution of Customer Email Length",
+    x = "Number of characters",
+    y = "Number of tickets"
+  )
+
+```
+
+The data contain 4000 observation and 20 variable. The variable are primarily make up by categorical variable and text, including ticket type, queue, priority, language, and nine tag field, as well as customer email subjects, email bodies, and agent responses. The categorical variable type, queue, priority, language and business_type variable contain 4, 10, 3, 5 and 9 unique categories respectively. I have also created additional numerical variables to check the lengths of customer email bodies and agent responses.
+
+Customer email body length ranged from 0 to 2843 characters, with a median of 654 characters and a mean of 758.3 characters indicate that we may need to set a maximum word count in ticket to reduce time of tokenization. Agent response length ranged from 52 to 2391 characters, with a median of 697.5 characters and a mean of 739.3 chracters. The difference between the mean and median body length suggest some right skewness caused by relative long customer messages.
+
+The tag_9 variable contains no observed values, with all 4000 observations missing. Telling us that it provides no useful information and should be removed from future analysis.
+
+## 2.2 Missing data
+```{r 2.2 Missing data}
+# check missing data
+vis_miss(data)
+# graph missing data
+gg_miss_var(data)
+```
+
+
+After analysis with R there is no missing data in all the variable except tag_9 which is missing 4000 observation. Further strengthen the idea that we should remove tag_9 variable from further analysis.
+
+# 2.3 Outliers
+```{r 2.3.1 Outliers(body)}
+# check outlier for text variable
+ggplot(data, aes(y = body_length)) +
+  geom_boxplot() +
+  labs(
+    title = "Potential Outliers in Customer Email Length",
+    y = "Number of characters"
+  )
+```
+Outliers can be observed in the body variable, The boxplot shows that most ticket bodies contain approximately 400 to 1200 characters, while small number of tickets contain more than 2000 characters and can be consider as outliers.
+
+
+```{r 2.3.2 Outliers(answer)}
+ggplot(data, aes(y = answer_length)) +
+  geom_boxplot() +
+  labs(
+    title = "Potential Outliers in Agent Answer Length",
+    y = "Number of characters"
+  )
+```
+Outlier can also be observed in the answer variable. The boxplot shows that most ticket bodies contain approximately 500 to 1000 characters, while small number of tickets contain more than 1750 character and can be consider as outliers.
+
+Overall, both variable have oblivious outliers telling us these variable should be remove from future analysis
+
+## 2.4 Class imbalance
+```{r 2.4 Class imbalance}
+# check data type
+data %>%
+  count(type) %>%
+  mutate(
+    percentage = n / sum(n) * 100
+  ) %>%
+  arrange(desc(n))
+
+ggplot(data, aes(x = type)) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Ticket Types",
+    x = "Ticket Type",
+    y = "Number of Tickets"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Check imbalance in priority
+data %>%
+  count(priority) %>%
+  mutate(percentage = n / sum(n) * 100)
+# Check imbalance in language
+data %>%
+  count(language) %>%
+  mutate(percentage = n / sum(n) * 100)
+```
+
+The distribution of ticket types is clearly imbalanced. We can clearly see that from the graph Incident is the most common ticket type, accounting for 40.2% of all tickets, followed by Request at 27.4% and Problem at 21.3%. Change is the least common category, representing only 11.1% of the dataset. This imbalance should be considered when developing the classification model, as a model may be biased towards the more frequently occurring classes.
+
+The distribution of ticket priorities is moderately imbalanced. High-priority tickets account for 41.2% of the dataset, while medium-priority tickets account for 40.1%. In comparison, low-priority tickets represent only 18.7% of the tickets. Therefore, the low-priority class is underrepresented compared with the high and medium-priority classes, which should be considered when analysing or modelling the data.
+
+The distribution of languages is somewhat uneven. English (en) is the most common language, accounting for 34.8% of the tickets, followed by German (de) at 21.2% and Spanish (es) at 20.3%. French (fr) and Portuguese (pt) are less represented, accounting for 11.9% and 11.8% of the tickets, respectively. Although English is more common than the other languages, all five language categories are represented in the dataset.
+
+## 2.5 Near-Zero-Variance
+```{r 2.5 Near-Zero-Variance}
+# check which tag are near zero variance
+nzv <- nearZeroVar(
+  data %>% select(all_of(categorical_vars)),
+  saveMetrics = TRUE
+)
+# filter tag by near zero variance
+nzv %>%
+  filter(nzv)
+```
+After using R to analysis near-zero-variance, tag_7, tag_8 and tag_9 have near zero variance. The near-zero-variance analysis identified tag_9 as a variable with no variation, as all of its values are missing. Therefore, tag_9 provides no useful information for analysis or modelling and can be removed from the dataset. In contrast, tag_7 and tag_8 contain variation and are therefore retained for further analysis.
+
+
+
+
+
+
+
+
+
+
+

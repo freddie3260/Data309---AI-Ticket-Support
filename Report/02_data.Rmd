@@ -1,7 +1,4 @@
 ---
-title: "Data"
-author: "Freddie Leung"
-date: "2026-09-12"
 output: pdf_document
 ---
 
@@ -20,38 +17,36 @@ data <- read.csv(here("Data Cleaning", "dataset-tickets-multi-lang3-4k.csv"))
 skim(data)
 
 # categorical variable
-categorical_vars <- c(
-  "type",
-  "queue",
-  "priority",
-  "language",
-  paste0("tag_", 1:9)
-)
+categorical_vars <- c("type", 
+                      "queue", 
+                      "priority",
+                      "language", 
+                      paste0("tag_", 1:9)
+                      )
 
 # Make a summary with all categorical variable
-data %>%
-  select(all_of(categorical_vars)) %>%
-  summary()
+#data %>%
+#  select(all_of(categorical_vars)) %>%
+#  summary()
 
 # check the amount of word in ticket and ticket solution
 data <- data %>%
-  mutate(
-    body_length = nchar(body),
-    answer_length = nchar(answer)
-  )
+  mutate(body_length = nchar(body), 
+         answer_length = nchar(answer)
+         )
+
 # the body and answer length detail
-summary(
-  data %>%
-    select(body_length, answer_length)
-)
+#summary(data %>% 
+#          select(body_length, answer_length)
+#        )
+
 # Graph to check customer email length
 ggplot(data, aes(x = body_length)) +
   geom_histogram(bins = 50) +
-  labs(
-    title = "Distribution of Customer Email Length",
-    x = "Number of characters",
-    y = "Number of tickets"
-  )
+  labs(title = "Distribution of Customer Email Length",
+       x = "Number of characters",
+       y = "Number of tickets"
+       )
 
 ```
 
@@ -62,68 +57,121 @@ Customer email body length ranged from 0 to 2843 characters, with a median of 65
 The tag_9 variable contains no observed values, with all 4000 observations missing. Telling us that it provides no useful information and should be removed from future analysis.
 
 ## 2.2 Missing data
+### Missing data disturbution
 ```{r 2.2 Missing data}
 # check missing data
-vis_miss(data)
+#vis_miss(data)
 # graph missing data
 gg_miss_var(data)
 ```
 
-
 After analysis with R there is no missing data in all the variable except tag_9 which is missing 4000 observation. Further strengthen the idea that we should remove tag_9 variable from further analysis.
 
-# 2.3 Outliers
-```{r 2.3.1 Outliers(body)}
-# check outlier for text variable
-ggplot(data, aes(y = body_length)) +
-  geom_boxplot() +
-  labs(
-    title = "Potential Outliers in Customer Email Length",
-    y = "Number of characters"
-  )
+## 2.3 Outliers
+```{r 2.3.1 Outliers(body), eval=FALSE, include=FALSE}
+ggplot(data, aes(y = body_length)) + 
+  geom_boxplot() + 
+  labs(title = "Potential Outliers in Customer Email Length", 
+        y = "Number of characters"
+        )
 ```
+
+```{r 2.3.2 Outliers(answer), eval=FALSE, include=FALSE}
+ggplot(data, aes(y = answer_length)) + 
+  geom_boxplot() + 
+  labs(title = "Potential Outliers in Agent Answer Length", 
+       y = "Number of characters"
+       )
+```
+
+```{r 2.3.3 Outliers}
+# Combine of 2.3.1 and 2.3.2
+outlier_data <- data %>%
+  select(body_length, answer_length) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "length"
+    )
+
+ggplot(outlier_data, aes(y = length)) +
+  geom_boxplot() +
+  facet_wrap(~ variable, 
+             labeller = as_labeller(c(body_length = "Customer Email Length", 
+                                      answer_length = "Agent Answer Length"
+                                      ))) +
+  labs(title = "Potential Outliers in Email Length", 
+       y = "Number of characters", 
+       x = NULL
+       )
+```
+
 Outliers can be observed in the body variable, The boxplot shows that most ticket bodies contain approximately 400 to 1200 characters, while small number of tickets contain more than 2000 characters and can be consider as outliers.
 
-
-```{r 2.3.2 Outliers(answer)}
-ggplot(data, aes(y = answer_length)) +
-  geom_boxplot() +
-  labs(
-    title = "Potential Outliers in Agent Answer Length",
-    y = "Number of characters"
-  )
-```
 Outlier can also be observed in the answer variable. The boxplot shows that most ticket bodies contain approximately 500 to 1000 characters, while small number of tickets contain more than 1750 character and can be consider as outliers.
 
 Overall, both variable have oblivious outliers telling us these variable should be remove from future analysis
 
 ## 2.4 Class imbalance
-```{r 2.4 Class imbalance}
-# check data type
+```{r 2.4.1 Class imbalance, eval=FALSE, include=FALSE}
+# check imbalance in data type
 data %>%
   count(type) %>%
-  mutate(
-    percentage = n / sum(n) * 100
-  ) %>%
+  mutate(percentage = n / sum(n) * 100) %>%
   arrange(desc(n))
 
 ggplot(data, aes(x = type)) +
   geom_bar() +
-  labs(
-    title = "Distribution of Ticket Types",
-    x = "Ticket Type",
-    y = "Number of Tickets"
-  ) +
+  labs(title = "Distribution of Ticket Types", 
+       x = "Ticket Type", 
+       y = "Number of Tickets"
+       ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Check imbalance in priority
 data %>%
   count(priority) %>%
   mutate(percentage = n / sum(n) * 100)
+
+ggplot(data, aes(x = priority)) +
+  geom_bar() +
+  labs(title = "Distribution of Ticket Priority", 
+       x = "Ticket Priority", 
+       y = "Number of Tickets"
+       ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 # Check imbalance in language
 data %>%
   count(language) %>%
   mutate(percentage = n / sum(n) * 100)
+
+ggplot(data, aes(x = language)) +
+  geom_bar() +
+  labs(title = "Distribution of Ticket Language Types", 
+       x = "Language", 
+       y = "Number of Tickets"
+       ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r 2.4.2 Class imbalance}
+# combine ggplot for 2.4.1
+imbalance_data <- data %>%
+  select(type, priority, language) %>%
+  pivot_longer(cols = everything(),
+               names_to = "variable",
+               values_to = "category"
+               )
+
+ggplot(imbalance_data, aes(x = category)) +
+  geom_bar() +
+  facet_wrap(~ variable, scales = "free_x") +
+  labs(title = "Distribution of Ticket Type, Priority, and Language", 
+       x = NULL, 
+       y = "Number of Tickets"
+       ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 The distribution of ticket types is clearly imbalanced. We can clearly see that from the graph Incident is the most common ticket type, accounting for 40.2% of all tickets, followed by Request at 27.4% and Problem at 21.3%. Change is the least common category, representing only 11.1% of the dataset. This imbalance should be considered when developing the classification model, as a model may be biased towards the more frequently occurring classes.
@@ -135,15 +183,25 @@ The distribution of languages is somewhat uneven. English (en) is the most commo
 ## 2.5 Near-Zero-Variance
 ```{r 2.5 Near-Zero-Variance}
 # check which tag are near zero variance
-nzv <- nearZeroVar(
-  data %>% select(all_of(categorical_vars)),
-  saveMetrics = TRUE
-)
+nzv <- nearZeroVar(data %>% select(all_of(categorical_vars)),
+                   saveMetrics = TRUE
+                   )
 # filter tag by near zero variance
 nzv %>%
   filter(nzv)
 ```
 After using R to analysis near-zero-variance, tag_7, tag_8 and tag_9 have near zero variance. The near-zero-variance analysis identified tag_9 as a variable with no variation, as all of its values are missing. Therefore, tag_9 provides no useful information for analysis or modelling and can be removed from the dataset. In contrast, tag_7 and tag_8 contain variation and are therefore retained for further analysis.
+
+## 2.6 Data Limition
+There are several limitation within the dataset that should be considered when interpreting the results. 
+
+To start with, the distribution of some categorical variables is imbalanced. For example, for ticket type variable, incident tickets account for 40.2% of the dataset, while the change tickets account for only 11.1%. Also, for priority variable, low-priority tickets represent only 18.7% of the data, compared with approximately 40% for both high and medium priorities. This imbalance may affect the performance of classification models, specifically for less represented classes like low priority and change.
+
+Another limitation is the presence of unusually long ticket bodies. Most ticket bodies contain approximately 400 to 1000 characters, while a small number contain more than 2000 characters. These observations may represent genuine customer enquiries but they could also affect text-based analysis and modelling.
+
+The data set also contains variables with missing information. A observable example can be tag_9 variable in this dataset with all value missing therefore provides no useful information for analysis. In addition, missing value will affect the quality of our analyses if they are not appropriately handled.
+
+Last of all, the dataset contains only a limited number of categorical variables and text- based information. The avaiable data may not capture other factors that could influence ticket classification, such as customer history, resolutioin time, or the complexity of the issue. Therefore, the findings and any predictive models developed from this dataset may not fully generalise to other customer suppport environments.
 
 
 

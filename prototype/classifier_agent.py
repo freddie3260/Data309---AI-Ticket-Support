@@ -26,7 +26,7 @@ def generate_category(ticket):
         "Shipping and Delivery"
     ]
 
-    # Generate category base on ticket info
+    #category
     result = classifier(
         ticket,
         candidate_labels = labels
@@ -46,7 +46,7 @@ def billing_payment_check(ticket):
 
     result = classifier(
         ticket,
-        candidate_label = labels
+        candidate_labels = labels
     )
 
     return result
@@ -68,7 +68,7 @@ def check_status(ticket):
 
 
 def main():
-    # Test case
+    #test
     ticket = """
     I cannot log into my account and I am very frustrated.
     """

@@ -6,7 +6,7 @@ def generate_response(
     sentiment,
     escalation,
     status):
-    # prompt for general response
+
     prompt = f"""
         You are an experienced customer support specialist.
 
@@ -57,7 +57,7 @@ def generate_response(
 
         Generate a professional customer support response.
         """
-        # prompt when the ticket is solved
+        #when ticket solved
     if status == "Solved":
         prompt = f"""
             You are a professional customer support specialist.
@@ -97,33 +97,40 @@ def generate_response(
         response = requests.post(
             "http://localhost:11434/api/generate",
             json={
-                "model": "phi4-mini",   # Change if you're using another model
+                "model": "phi4-mini",   #change if we want another model
                 "prompt": prompt,
                 "stream": False
                 },
             timeout=120
             )
+        response.raise_for_status()
 
         data = response.json()
 
-        # Debug information
-        #print("\nReturned JSON:")
-        #print(data)
+        
 
         if "response" in data:
-            return data["response"]
+            return True, data["response"]
 
         if "error" in data:
-            return f"Ollama Error: {data['error']}"
+            return False, f"Ollama Error: {data['error']}"
 
-        return "Unexpected Ollama response format."
+        return False, "Unexpected Ollama response format."
 
+    except requests.exceptions.ConnectionError:
+        return False, (
+            "Could not connect to Ollama. Make sure it's running "
+            "('ollama serve') and that 'phi4-mini' has been pulled "
+            "('ollama pull phi4-mini')."
+        )
+    except requests.exceptions.Timeout:
+        return False, "Ollama took too long to respond (timed out after 120s)."
     except Exception as e:
-        return f"Connection Error: {str(e)}"
+        return False, f"Unexpected error while generating a response: {str(e)}"
 
 
 def main():
-    # # Testing
+    
     from classifier_agent import generate_category
     from sentiment_agent import generate_sentiment
     from escalation_agent import check_escalation
@@ -132,22 +139,19 @@ def main():
     I cannot log into my account and I am very frustrated.
     """
 
-    # AI agent for check ticket type
-    category = generate_category(ticket)     # Classification
-    sentiment_result = generate_sentiment(ticket)   # Sentiment
+    #check ticket type
+    category = generate_category(ticket)     
+    sentiment_result = generate_sentiment(ticket)   
 
     ticket_category = category["labels"][0]
     sentiment_label = sentiment_result[0]["label"]
 
-    # Check escalation is needed or not
+    #check escalation
     escalation = check_escalation(ticket, ticket_category, sentiment_label)
 
-    # show ticket type and escalation state
-    # print(ticket_category)
-    # print(sentiment_label)
-    # print(escalation)
+    
 
-    # Response Generator (Ollama)
+    #response
     response_text = generate_response(
         ticket,
         ticket_category,
@@ -157,61 +161,7 @@ def main():
 
     print(response_text)
 
-    # Old code
-    # ticket = """
-    #  I cannot log into my account and I am very frustrated.
-    #  """
-
-    # labels = [
-    #     "Technical Issue",
-    #     "Billing and Payment",
-    #     "Return and Exchange",
-    #     "Account",
-    #     "Sales and Pre-sales",
-    #     "IT and Technical Support",
-    #     "General"
-    # ]
-
-    # # Classification
-    # from transformers import pipeline
-    # classifier = pipeline(
-    #     "zero-shot-classification",
-    #     model="facebook/bart-large-mnli"
-    # )
-
-    # sentiment_model = pipeline(
-    #     "sentiment-analysis"
-    # )
-
-    # classification = classifier(
-    #     ticket,
-    #     candidate_labels=labels
-    # )
-
-    # category = classification["labels"][0]
-
-    # # Sentiment
-    # sentiment_result = sentiment_model(
-    #     ticket
-    # )
-
-    # sentiment_label = sentiment_result[0]["label"]
-
-    # # Escalation
-    # if sentiment_label == "NEGATIVE":
-    #     escalation = "YES"
-    # else:
-    #     escalation = "NO"
-
-    # # Response Generator (Ollama)
-    # response_text = generate_response(
-    #     ticket,
-    #     category,
-    #     sentiment_label,
-    #     escalation
-    # )
-
-    # print(response_text)
+    
 
 if __name__ == "__main__":
     main()

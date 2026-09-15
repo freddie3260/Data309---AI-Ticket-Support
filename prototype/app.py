@@ -46,8 +46,15 @@ if st.session_state.get("_clear_ticket_form", False):
 
 #Title
 
-
 st.title("📨 Automated Customer Support Ticket System")
+
+#new ticket
+
+if st.button("New Ticket"):
+    st.session_state.tickets = None
+    reset_escalation()
+    st.session_state._clear_ticket_form = True
+    st.rerun()
 
 st.write("Enter a customer ticket and analyse it.")
 
@@ -178,16 +185,6 @@ if submitted:
             st.write(response_text)
         else:
             st.error(response_text)
-
-
-#new ticket
-
-
-if st.button("New Ticket"):
-    st.session_state.tickets = None
-    reset_escalation()
-    st.session_state._clear_ticket_form = True
-    st.rerun()
 
 
 def main():

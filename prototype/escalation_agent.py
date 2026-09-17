@@ -18,11 +18,12 @@ def check_escalation(body, category, sentiment, status):
     if escalation_solve(status) == False:
         return "NO", st.session_state.escalation_check
 
-    if st.session_state.escalation_check != 1 and escalation_sentiment(sentiment) == False:  # Sentiment check (don't check for the first time)
-        if st.session_state.negative_sentiment >= 2:  # if the sentiment is negative two time or more then escalate
-            ans = True
-        else:
-            st.session_state.negative_sentiment += 1
+    if st.session_state.escalation_check > 0:
+        if escalation_sentiment(sentiment) == True:  # Sentiment check (don't check for the first time)
+            if st.session_state.negative_sentiment >= 1:  # if the sentiment is negative two time or more then escalate
+                ans = True
+            else:
+                st.session_state.negative_sentiment += 1
 
     if category in ["Billing and Payment"]:  # Special step needed for billing and payment category
         result = billing_payment_check(body)

@@ -1,14 +1,28 @@
 import streamlit as st
+import torch
+import os
+from dotenv import load_dotenv
 from transformers import pipeline
+
+load_dotenv()
+
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 @st.cache_resource
 def load_classifier():
     """Load Model"""
-    return pipeline(
-        "zero-shot-classification",
-        model="facebook/bart-large-mnli"
-    )
+    device = 0 if torch.cuda.is_available() else -1
 
+    model_args = {
+        "task": "zero-shot-classification",
+        "model": "facebook/bart-large-mnli",
+        "device": device
+    }
+
+    if HF_TOKEN:
+        model_args["token"] = HF_TOKEN
+
+    return pipeline(**model_args)
 
 def generate_category(ticket):
     """

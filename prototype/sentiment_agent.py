@@ -1,11 +1,27 @@
 import streamlit as st
+import torch
+import os
+from dotenv import load_dotenv
 from transformers import pipeline
+
+load_dotenv()
+
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 @st.cache_resource
 def load_sentiment_model():
     """Load Model"""
-    return pipeline("sentiment-analysis")
+    device = 0 if torch.cuda.is_available() else -1
 
+    model_args = {
+        "task": "sentiment-analysis",
+        "device": device
+    }
+
+    if HF_TOKEN:
+        model_args["token"] = HF_TOKEN
+
+    return pipeline(**model_args)
 
 def generate_sentiment(ticket):
     """
@@ -16,6 +32,12 @@ def generate_sentiment(ticket):
 
     # insert ticket into model to get sentiment result
     result = model(ticket)
+
+    # change all other sentiment to non-negative if they are not negative
+    if result[0]["label"] == "NEGATIVE":
+        result[0]["label"] = "NEGATIVE"
+    else:
+        result[0]["label"] = "NON-NEGATIVE"
 
     return result
 

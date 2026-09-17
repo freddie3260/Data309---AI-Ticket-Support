@@ -22,4 +22,5 @@ pip install -r requirements.txt
 
 ```bash
 python app.py # From PowerShell:  streamlit run app.py
+python -m streamlit run "prototype/app.py" # From PowerShell:  streamlit run app.py
 ```

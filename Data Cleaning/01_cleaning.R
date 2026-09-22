@@ -8,7 +8,8 @@ tickets <- read.csv("Data Cleaning/dataset-tickets-multi-lang3-4k.csv")
 tickets_1 <- tickets %>%
   select(-subject,
          -queue,
-         -business_type
+         -business_type,
+         -tag_9
          )
 
 # correct some value to factor for easy analysis
@@ -20,6 +21,9 @@ tickets_1$language <- as.factor(tickets_1$language)
 # remove column that have empty question and response as it is useless
 tickets_2 <- tickets_1 %>%
   filter(language == "en", body != "", answer != "")
+
+tickets_2 <- tickets_2 %>%
+  select(-language)
 
 # Sort Data by priority and type
 tickets_2$priority <- factor(tickets_2$priority, levels = c("high", "medium", "low"))

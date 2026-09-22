@@ -45,10 +45,12 @@ data <- data %>%
 # Graph to check customer email length
 ggplot(data, aes(x = body_length)) +
   geom_histogram(bins = 50) +
-  labs(title = "Distribution of Customer Email Length",
+  labs(title = "Figure 1: Distribution of Customer Email Length",
        x = "Number of characters",
        y = "Number of tickets"
        )
+
+
 
 ```
 
@@ -102,7 +104,7 @@ ggplot(outlier_data, aes(y = length)) +
              labeller = as_labeller(c(body_length = "Customer Email Length", 
                                       answer_length = "Agent Answer Length"
                                       ))) +
-  labs(title = "Potential Outliers in Email Length", 
+  labs(title = "Figure 3: Potential Outliers in Email Length", 
        y = "Number of characters", 
        x = NULL
        )
@@ -169,7 +171,7 @@ imbalance_data <- data %>%
 ggplot(imbalance_data, aes(x = category)) +
   geom_bar() +
   facet_wrap(~ variable, scales = "free_x") +
-  labs(title = "Distribution of Ticket Type, Priority, and Language", 
+  labs(title = "Figure 4: Distribution of Ticket Type, Priority, and Language", 
        x = NULL, 
        y = "Number of Tickets"
        ) +
@@ -189,8 +191,7 @@ nzv <- nearZeroVar(data %>% select(all_of(categorical_vars)),
                    saveMetrics = TRUE
                    )
 # filter tag by near zero variance
-nzv %>%
-  filter(nzv)
+nzv
 ```
 After using R to analysis near-zero-variance, tag_7, tag_8 and tag_9 have near zero variance. The near-zero-variance analysis identified tag_9 as a variable with no variation, as all of its values are missing. Therefore, tag_9 provides no useful information for analysis or modelling and can be removed from the dataset. In contrast, tag_7 and tag_8 contain variation and are therefore retained for further analysis.
 

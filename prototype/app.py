@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 from response_agent import generate_response
-from classifier_agent import generate_category, check_status
+from classifier_agent import generate_category, check_status, priority_check
 from sentiment_agent import generate_sentiment
 from escalation_agent import check_escalation, reset_escalation
 
@@ -144,6 +144,7 @@ if submitted:
             category_score = st.session_state.category_score
 
             ticket_status = check_status(ticket)["labels"][0]
+            ticket_priority = priority_check(ticket)["labels"][0]
 
             sentiment = generate_sentiment(ticket)
             sentiment_type = sentiment[0]["label"]
@@ -167,6 +168,7 @@ if submitted:
                 sentiment_type,
                 escalation,
                 ticket_status,
+                ticket_priority
             )
 
         #save info
@@ -188,9 +190,16 @@ if submitted:
 
         
         #display results
-        
 
         result_col1, result_col2, result_col3 = st.columns(3)
+        
+        if ticket_status != "Solved":
+
+            result_col1, result_col2, result_col3, result_col4 = st.columns(4)
+
+            with result_col4:
+                st.metric("Ticket Priority", ticket_priority)
+
 
         with result_col1:
             st.metric("Category", ticket_type, f"{category_score:.0%} confidence")
@@ -200,6 +209,8 @@ if submitted:
 
         with result_col3:
             st.metric("Ticket Status", ticket_status)
+
+
 
         # Escalation result/summary
         if escalation == "YES":

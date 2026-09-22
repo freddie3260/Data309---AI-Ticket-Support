@@ -22,6 +22,9 @@ Ticket Category:
 Customer Sentiment:
 {sentiment}
 
+Ticket Priority:
+{priority}
+
 Escalation Required:
 {escalation}
 
@@ -107,6 +110,7 @@ def generate_response(
     category,
     sentiment,
     escalation,
+    priority,
     status):
 
     try:
@@ -121,7 +125,8 @@ def generate_response(
                 "ticket": ticket,
                 "category": category,
                 "sentiment": sentiment,
-                "escalation": escalation
+                "escalation": escalation,
+                "priority": priority
             })
 
         return True, response.content

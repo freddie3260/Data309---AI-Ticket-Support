@@ -48,6 +48,21 @@ def generate_category(ticket):
 
     return result
 
+def priority_check(ticket):
+    classifier = load_classifier()
+    labels = [
+        "high",
+        "medium",
+        "low"
+    ]
+
+    result = classifier(
+        ticket,
+        candidate_labels = labels
+    )
+
+    return result
+
 def billing_payment_check(ticket):
     """
     check problem is billing problem or payment problem

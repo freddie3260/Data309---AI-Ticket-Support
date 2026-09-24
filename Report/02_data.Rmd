@@ -15,6 +15,8 @@ data <- read.csv(here("Data Cleaning", "dataset-tickets-multi-lang3-4k.csv"))
 
 ## 2.1 Descriptive statistics
 ```{r 2.1 Descriptive statistics}
+
+data[data == ""] <- NA
 # show database detail
 skim(data)
 
@@ -66,7 +68,12 @@ The tag_9 variable contains no observed values, with all 4000 observations missi
 # check missing data
 #vis_miss(data)
 # graph missing data
-gg_miss_var(data)
+gg_miss_var(data) +
+  labs(
+    title = "Figure: 2 Missing Values in the Dataset",
+    x = "Variables",
+    y = "Number of Missing Values"
+  )
 ```
 
 After analysis with R there is no missing data in all the variable except tag_9 which is missing 4000 observation. Further strengthen the idea that we should remove tag_9 variable from further analysis.
